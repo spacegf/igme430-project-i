@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css?family=Inconsolata:400,700");
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: 'Inconsolata', serif;
+  color: #fefefe;
+}
+
+.panel {
+  width: 100%;
+  min-height: 480px;
+}
+
+.title-ct {
+  width: 100%;
+}
+.title-ct h1 {
+  font-size: 2.93em;
+}
+
+.app-ct {
+  width: 100%;
+  min-height: 480px;
+  display: flex;
+  flex-flow: row wrap;
+  color: #232323;
+
+}
+.app-ct #app-adj {
+  width: 50%;
+  min-height: 480px;
+  background: #f0f0f0;
+}
+.app-ct #app-noun {
+  width: 50%;
+  min-height: 480px;
+  background: #cdcdcd;
+}

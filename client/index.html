@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>jjg-HTTP-api-assignment-complete-pt2</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+	<script type="text/babel">
+		const handleError = (res) => {
+			if (res.responseJSON) {
+				$('#output-status').html(res.responseJSON.id);
+				$('#output-message').html(res.responseJSON.message);
+			} else {
+				$('#output-status').html('Resource Not Found');
+				$('#output-message').html('');
+			}
+		}
+
+		$(document).ready(() => {
+			// Get the adjectives.
+			$.getJSON('/assets/adjectives.json', (data) => {
+				let $adjList = $('#list-adj');
+				data.adjectives.forEach((element) => {
+					$adjList.append(`<li>${element}</li>`)
+				});
+			});
+
+			// Get the nouns.
+			$.getJSON('/assets/nouns.json', (data) => {
+				let $nounList = $('#list-noun');
+				data.noun.forEach((element) => {
+					$nounList.append(`<li>${element}</li>`)
+				});
+			});
+		});
+
+		$('#nameForm').submit((event) => {
+			event.preventDefault();
+			$.ajax({
+				method: 'POST',
+				url: '/addUser',
+				data: JSON.stringify({
+					'name': $('#nameField').val(),
+					'age': $('#ageField').val()
+				}),
+				statusCode: {
+					204: () => {
+						$('#output-status').html('Updated User');
+						$('#output-message').html('the user was successfully updated');
+					}
+				},
+				success: (res) => {
+					if (typeof res !== 'undefined') {
+						$('#output-status').html(res.id);
+						$('#output-message').html(res.message);
+					} else {
+						$('#output-status').html('Operantion successful');
+						$('#output-message').html('The performed operation was successful');
+					}
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="panel">
+		<div class="title-ct">
+			<h1>Shitty Insult Generator</h1>
+		</div>
+		<div class="app-ct">
+			<div id="app-adj">
+				<ul id="list-adj">
+
+				</ul>
+			</div>
+			<div id="app-noun">
+				<ul id="list-noun">
+
+				</ul>
+			</div>
+		</div>
+		<div class="info">
+			
+		</div>
+	</div>
+</body>
+</html>

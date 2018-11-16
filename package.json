@@ -1,0 +1,31 @@
+{
+  "name": "igme.430.project-i",
+  "version": "1.0.0",
+  "description": "simple API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"tests complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spacegf/igme430-project-i.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spacegf/igme430-project-i/issues"
+  },
+  "homepage": "https://github.com/spacegf/igme430-project-i#readme",
+  "devDependencies": {
+    "eslint": "^5.5.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "urban-dictionary": "^2.2.1",
+    "xml": "^1.0.1"
+  }
+}
