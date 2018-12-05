@@ -14,6 +14,196 @@
 				$('#output-status').html('Resource Not Found');
 				$('#output-message').html('');
 			}
+		};
+
+		const lookupWord = (word, dictionary, dictionaryName, $element) => {
+			$.ajax({
+				method: 'GET',
+				url: `/lookup/${dictionary}?word=${word}&limit=3`,
+				success: (res) => {
+					const $defList = $('<ol></ol>');
+					res.definition.forEach((def) => {
+						$defList.append(`<li>${def}</li>`);
+					});
+					$element.parent().find(`.word__definition--${dictionary}`)
+						.html($defList)
+						.prepend(`<h3>${dictionaryName}</h3>`);
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		};
+
+		const getFavorites = () => {
+			$.ajax({
+				method: 'GET',
+				url: `/insults`,
+				success: (res) => {
+					const $defList = $('.favorites');
+					$defList.html('');
+					res.forEach((fav) => {
+						$defList.append(`<li data-adj="${fav.adj}" data-noun="${fav.noun}">${fav.adj} ${fav.noun}</li>`);
+					});
+					$('.favorites li').click((event) => {
+						const $fav = $(event.currentTarget);
+						const adj = $fav.attr('data-adj');
+						const noun = $fav.attr('data-noun');
+						const $adjInput = $(`.word__select--adjective[data-word='${adj}']`);
+						const $nounInput = $(`.word__select--noun[data-word='${noun}']`);
+
+						$adjInput.click();
+						$nounInput.click();
+						$('#list-adj').animate({
+							scrollTop: $adjInput.closest('li').offset().top + $('#list-adj').scrollTop() - 28
+						}, 500);
+						$('#list-noun').animate({
+							scrollTop: $nounInput.closest('li').offset().top + $('#list-noun').scrollTop() - 28
+						}, 500);
+					});
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		}
+
+		const addFavorite = (adj, noun) => {
+			if (!adj || !noun) {
+				alert('Please select an adjective and a noun');
+				return;
+			}
+			$.ajax({
+				method: 'POST',
+				url: '/insults',
+				data: {
+					'adj': adj,
+					'noun': noun
+				},
+				success: (res) => {
+					$('.insult__icon--active').removeClass('insult__icon--active');
+					$('.insult__icon--opaque').addClass('insult__icon--active');
+					if ($('.info.info--expanded').length) {
+						getFavorites();
+					}
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		}
+
+		const removeFavorite = (adj, noun) => {
+			if (!adj || !noun) {
+				alert('Please select an adjective and a noun');
+				return;
+			}
+			$.ajax({
+				method: 'DELETE',
+				url: '/insults',
+				data: {
+					'adj': adj,
+					'noun': noun
+				},
+				success: (res) => {
+					$('.insult__icon--active').removeClass('insult__icon--active');
+					$('.insult__icon--outline').addClass('insult__icon--active');
+					if ($('.info.info--expanded').length) {
+						getFavorites();
+					}
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		}
+
+		const checkFavorite = (adj, noun) => {
+			$.ajax({
+				method: 'GET',
+				url: `/insults?adj=${adj}&noun=${noun}`,
+				success: (res) => {
+					if (res.length) {
+						$('.insult__icon--active').removeClass('insult__icon--active');
+						$('.insult__icon--opaque').addClass('insult__icon--active');
+					} else {
+						$('.insult__icon--active').removeClass('insult__icon--active');
+						$('.insult__icon--outline').addClass('insult__icon--active');
+					}
+				},
+				error: (res) => {
+					handleError(res);
+				}
+			});
+		};
+
+		const formatWord = (word, type) => {
+			let $word = $(`
+			  <li class="word">
+					<div class="word__title">
+						<input type="checkbox" class="word__select word__select--${type}" data-word="${word}" data-type="${type}">
+						${word}
+					</div>
+					<div class="word__description">
+						<button class="btn word__lookup word__lookup--merriam" data-word="${word}">
+							Get Merriam Webster Definition
+						</button>
+						<button class="btn word__lookup word__lookup--urban" data-word="${word}">
+							Get Urban Dictionary Definition
+						</button>
+						<div class="word__definitions">
+							<div class="word__definition word__definition--merriam"></div>
+							<div class="word__definition word__definition--urban"></div>
+						</div>
+					</div>
+			  </li>
+			`);
+			$word.find('.word__select').change((event) => {
+				const $select = $(event.currentTarget);
+				const type = $select.attr('data-type');
+				if (event.currentTarget.checked) {
+					$(`.word__select.word__select--${type}`).not($select).prop('checked', false);
+					$(`.insult__${type}`).html($select.attr('data-word'));
+				} else {
+					$(`.insult__${type}`).html('');
+				}
+
+				const adj = $('.insult__adjective').text();
+				const noun = $('.insult__noun').text();
+				if (adj && noun) {
+					checkFavorite(adj, noun);
+				} else {
+					$('.insult__icon--active').removeClass('insult__icon--active');
+					$('.insult__icon--outline').addClass('insult__icon--active');
+				}
+			});
+			$word.find('.word__lookup--urban').click((event) => {
+				const $lookupBtn = $(event.currentTarget);
+				lookupWord($lookupBtn.attr('data-word'), 'urban', 'Urban Dictionary', $lookupBtn);
+			});
+			$word.find('.word__lookup--merriam').click((event) => {
+				const $lookupBtn = $(event.currentTarget);
+				lookupWord($lookupBtn.attr('data-word'), 'merriam', 'Merriam Webster', $lookupBtn);
+			});
+			return $word;
+		};
+
+		const randomInsult = () => {
+			const $adjectives = $('#list-adj li');
+			const $nouns = $('#list-noun li');
+			const randAdj = Math.floor(Math.random() * Math.floor($adjectives.length));
+			const randNoun = Math.floor(Math.random() * Math.floor($nouns.length));
+			const $adj = $adjectives.eq(randAdj);
+			const $noun = $nouns.eq(randNoun);
+
+			$adj.find('.word__select').click();
+			$('#list-adj').animate({
+				scrollTop: $adj.offset().top + $('#list-adj').scrollTop() - 28
+			}, 500);
+			$noun.find('.word__select').click();
+			$('#list-noun').animate({
+				scrollTop: $noun.offset().top + $('#list-noun').scrollTop() - 28
+			}, 500);
 		}
 
 		$(document).ready(() => {
@@ -21,7 +211,7 @@
 			$.getJSON('/assets/adjectives.json', (data) => {
 				let $adjList = $('#list-adj');
 				data.adjectives.forEach((element) => {
-					$adjList.append(`<li>${element}</li>`)
+					$adjList.append(formatWord(element, 'adjective'))
 				});
 			});
 
@@ -29,61 +219,76 @@
 			$.getJSON('/assets/nouns.json', (data) => {
 				let $nounList = $('#list-noun');
 				data.noun.forEach((element) => {
-					$nounList.append(`<li>${element}</li>`)
+					$nounList.append(formatWord(element, 'noun'));
 				});
 			});
 		});
 
-		$('#nameForm').submit((event) => {
-			event.preventDefault();
-			$.ajax({
-				method: 'POST',
-				url: '/addUser',
-				data: JSON.stringify({
-					'name': $('#nameField').val(),
-					'age': $('#ageField').val()
-				}),
-				statusCode: {
-					204: () => {
-						$('#output-status').html('Updated User');
-						$('#output-message').html('the user was successfully updated');
-					}
-				},
-				success: (res) => {
-					if (typeof res !== 'undefined') {
-						$('#output-status').html(res.id);
-						$('#output-message').html(res.message);
-					} else {
-						$('#output-status').html('Operantion successful');
-						$('#output-message').html('The performed operation was successful');
-					}
-				},
-				error: (res) => {
-					handleError(res);
-				}
-			});
+		$('.insult__random').click(randomInsult);
+
+		$('.insult__favorites').click((event) => {
+			if (!$('.info').hasClass('info--expanded')) {
+				$('.info').addClass('info--expanded');
+				$(event.currentTarget).text('Close Favorites');
+				getFavorites();
+			} else {
+				$('.info').removeClass('info--expanded');
+				$(event.currentTarget).text('Favorites');
+			}
+		});
+
+		$('.insult__fav').click((event) => {
+			if ($('.insult__icon--outline.insult__icon--active').length) {
+				addFavorite($('.insult__adjective').text(), $('.insult__noun').text());
+			} else {
+				removeFavorite($('.insult__adjective').text(), $('.insult__noun').text());
+			}
 		});
 	</script>
 </head>
 <body>
 	<div class="panel">
 		<div class="title-ct">
-			<h1>Shitty Insult Generator</h1>
+			<h1>Terrible Insult Generator</h1>
 		</div>
 		<div class="app-ct">
 			<div id="app-adj">
-				<ul id="list-adj">
-
+				<ul id="list-adj" class="word-list">
 				</ul>
 			</div>
 			<div id="app-noun">
-				<ul id="list-noun">
-
+				<ul id="list-noun" class="word-list">
 				</ul>
 			</div>
 		</div>
 		<div class="info">
-			
+			<div class="info__shelf">
+				<span class="insult__label">Your insult:</span>
+				<span class="insult__word insult__adjective"></span>
+				<span class="insult__word insult__noun"></span>
+				<button class="btn insult__random">Random Insult</button>
+				<button class="btn insult__favorites">Favorites</button>
+
+				<span class="insult__fav">
+					Favorite
+					<span class="insult__icon insult__icon--outline insult__icon--active">
+						<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
+							<path fill="none" d="M0 0h24v24H0V0z" />
+							<path fill="#fff" d="M19.66 3.99c-2.64-1.8-5.9-.96-7.66 1.1-1.76-2.06-5.02-2.91-7.66-1.1-1.4.96-2.28 2.58-2.34 4.29-.14 3.88 3.3 6.99 8.55 11.76l.1.09c.76.69 1.93.69 2.69-.01l.11-.1c5.25-4.76 8.68-7.87 8.55-11.75-.06-1.7-.94-3.32-2.34-4.28zM12.1 18.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z" />
+						</svg>
+					</span>
+					<span class="insult__icon insult__icon--opaque">
+						<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
+							<path fill="none" d="M0 0h24v24H0V0z" />
+							<path fill="#fff" d="M13.35 20.13c-.76.69-1.93.69-2.69-.01l-.11-.1C5.3 15.27 1.87 12.16 2 8.28c.06-1.7.93-3.33 2.34-4.29 2.64-1.8 5.9-.96 7.66 1.1 1.76-2.06 5.02-2.91 7.66-1.1 1.41.96 2.28 2.59 2.34 4.29.14 3.88-3.3 6.99-8.55 11.76l-.1.09z" />
+						</svg>
+					</span>
+				</span>
+			</div>
+			<div class="info__body">
+				<ul class="favorites">
+				</ul>
+			</div>
 		</div>
 	</div>
 </body>

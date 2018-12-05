@@ -1,31 +1,66 @@
-@import url("https://fonts.googleapis.com/css?family=Inconsolata:400,700");
+@import url("https://fonts.googleapis.com/css?family=Hind");
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   background: #000;
-  font-family: 'Inconsolata', serif;
+  font-family: 'Hind', sans-serif;
   color: #fefefe;
+  height: 100%;
+}
+
+.btn {
+  padding: .75rem;
+  font-size: 1rem;
+  background: #fff;
+  font-family: inherit;
+  border: none;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+  transition: .3s ease-out;
+  cursor: pointer;
+}
+
+.btn:hover {
+  box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
 }
 
 .panel {
-  width: 100%;
-  min-height: 480px;
+	position: absolute;
+	width: 100%;
+	min-height: 480px;
+	height: 100vh;
+	overflow: hidden;
 }
 
 .title-ct {
-  width: 100%;
+	display: flex;
+	width: 100%;
+	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+	height: 72px;
+	/* justify-content: left; */
+	/* align-content: baseline; */
+	background: rgb(0,164,49);
+	background: linear-gradient(90deg, rgb(0, 84, 25) 0%, rgb(0, 47, 84) 100%);
 }
 .title-ct h1 {
-  font-size: 2.93em;
+	height: 100%;
+	/* font-size: 3rem; */
+	margin: 0;
+	display: flex;
+	align-items: center;
+	padding: 0 0 0 1em;
 }
 
 .app-ct {
-  width: 100%;
-  min-height: 480px;
-  display: flex;
-  flex-flow: row wrap;
-  color: #232323;
-
+	width: 100%;
+	min-height: 480px;
+	display: flex;
+	flex-flow: row wrap;
+	color: #232323;
+	height: calc(100vh - 144px);
 }
 .app-ct #app-adj {
   width: 50%;
@@ -36,4 +71,152 @@ body {
   width: 50%;
   min-height: 480px;
   background: #cdcdcd;
+}
+
+#app-noun .word__title {
+  border-color: #f0f0f0;
+}
+
+.info {
+	width: 100%;
+	height: 72px;
+	position: fixed;
+	bottom: 0;
+	transition: height .2s ease-in;
+	background: rgb(0,164,49);
+	background: linear-gradient(90deg, rgb(0, 84, 25) 0%, rgb(0, 47, 84) 100%);
+}
+
+.info__shelf {
+	padding: 0.5em 2em;
+	display: flex;
+	align-items: center;
+}
+
+.info--expanded {
+  height: calc(100% - 4rem);
+}
+
+.info--expanded .info__body {
+	width: 100%;
+	height: calc(100% - 6rem);
+	/* background: #3d3f52; */
+	background: rgb(0, 82, 25);
+	background: linear-gradient(90deg, rgb(0, 53, 16) 0%, rgb(0, 20, 35) 100%);
+}
+
+.insult__label {
+  font-size: 1.5rem;
+}
+
+.insult__word {
+  height: 1.75rem;
+  font-size: 1.5rem;
+  border: 1px solid #fff;
+  min-width: 7rem;
+  margin-left: 1rem;
+  position: relative;
+  padding: .25rem;
+}
+
+.insult__word::after {
+  position: absolute;
+  font-size: 1rem;
+  top: 100%;
+  left: 0;
+}
+
+.insult__adjective::after {
+  content: "Adjective";
+}
+
+.insult__noun::after {
+  content: "Noun";
+}
+
+.insult__fav {
+  margin-left: auto;
+  margin-right: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.insult__icon {
+  margin-left: .5rem;
+  display: none;
+}
+
+.insult__icon--active {
+  display: inline-block;
+}
+
+.insult__random, .insult__favorites {
+  margin-left: 1rem;
+  background: #000;
+  color: #fff;
+}
+
+.word-list {
+	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
+.word {
+	padding: 2rem;
+	min-height: 32vh;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+	color: #fefefe;
+	align-content: center;
+}
+#list-adj .word:nth-child(2n+1) {
+	background: #51986e;
+}
+#list-adj .word:nth-child(2n-2) {
+	background: #306f58;
+}
+#list-noun .word:nth-child(2n+1) {
+	background: #3578a9;
+}
+#list-noun .word:nth-child(2n-2) {
+	background: #315b90;
+}
+.word__title {
+  font-size: 2rem;
+  border-bottom: 2px solid #cecece;
+  padding: .5rem;
+  width:100%;
+}
+
+.word__description {
+  padding: .5rem;
+}
+
+.word__lookup--urban {
+  color: #fff;
+  background: #000;
+}
+
+.favorites {
+  list-style-type: none;
+  padding: 1rem;
+}
+
+.favorites li {
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #cecece;
+  padding: .5rem;
+  transition: all .2s ease-in;
+}
+
+.favorites li:hover {
+  background: rgba(0,0,0,0.12);
 }
