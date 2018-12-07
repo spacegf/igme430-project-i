@@ -21,3 +21,8 @@ workflows:
   workflow:
     jobs:
     - build  
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: jjg1811-430-project1
